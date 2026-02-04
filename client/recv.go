@@ -2,18 +2,18 @@ package client
 
 import (
 	"bufio"
-	"fmt"
 	"net"
+	"strings"
 )
 
-func recv(conn net.Conn) {
+func recv(conn net.Conn, out chan string) {
 	r := bufio.NewReader(conn)
 	for {
 		message, err := r.ReadString('\n')
 		if err != nil {
-			panic(err)
+			return
 		}
 
-		fmt.Print(message)
+		out <- strings.TrimSpace(message)
 	}
 }

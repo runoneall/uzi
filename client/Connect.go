@@ -1,8 +1,9 @@
 package client
 
 import (
-	"fmt"
 	"net"
+
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 func Connect(addr string, auth string) {
@@ -12,7 +13,8 @@ func Connect(addr string, auth string) {
 	}
 	defer conn.Close()
 
-	fmt.Println("已连接到服务器。输入消息并回车发送 (输入 'exit' 退出)")
-	go recv(conn)
-	sendui(conn, auth)
+	p := tea.NewProgram(NewModel(conn, auth))
+	if _, err := p.Run(); err != nil {
+		panic(err)
+	}
 }
