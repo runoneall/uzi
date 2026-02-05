@@ -9,6 +9,10 @@ import (
 )
 
 func newConn(conn net.Conn, auth string) {
+	conn.(*net.TCPConn).SetNoDelay(true)
+	w := bufio.NewWriter(conn)
+	r := bufio.NewReader(io.LimitReader(conn, 1024*1024))
+
 	defer func() {
 		conn.Close()
 		removeConn(conn)
@@ -25,8 +29,22 @@ func newConn(conn net.Conn, auth string) {
 		fmt.Printf("[%s] %s: %v\n", remoteName, mode, msg)
 	}
 
-	limitedReader := io.LimitReader(conn, 1024*1024)
-	r := bufio.NewReader(limitedReader)
+	mu.RLock()
+	historySnapshot := make([]string, len(History))
+	copy(historySnapshot, History)
+	mu.RUnlock()
+
+	count := 0
+	for _, message := range historySnapshot {
+		_, err := fmt.Fprintln(w, message)
+		w.Flush()
+
+		if err == nil {
+			count++
+		}
+	}
+	log("HISTORY", fmt.Sprintf("Sync %d messages", count))
+
 	for {
 		payload := getPayload(r)
 		if payload.Err != nil {
@@ -38,12 +56,12 @@ func newConn(conn net.Conn, auth string) {
 		}
 
 		if payload.Auth != auth {
-			log(" AUTH", "Invalid credentials")
+			log("AUTH", "Invalid credentials")
 			continue
 		}
 
 		message := strings.TrimSpace(payload.Message)
-		log("BROAD", message)
+		log("BROADCAST", message)
 		broadcast(fmt.Sprintf("[%s] %s", remoteName, message))
 	}
 }

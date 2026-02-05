@@ -11,5 +11,9 @@ type Payload struct {
 	Err     error  `json:"-"`
 }
 
+const MaxHistory = 100
+
 var mu = sync.RWMutex{}
+
 var Pool = make(map[net.Conn]struct{})
+var History []string

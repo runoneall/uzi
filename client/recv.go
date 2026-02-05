@@ -1,19 +1,16 @@
 package client
 
 import (
-	"bufio"
-	"net"
 	"strings"
+
+	tea "github.com/charmbracelet/bubbletea"
 )
 
-func recv(conn net.Conn, out chan string) {
-	r := bufio.NewReader(conn)
-	for {
-		message, err := r.ReadString('\n')
-		if err != nil {
-			return
-		}
-
-		out <- strings.TrimSpace(message)
+func (m model) recv() tea.Msg {
+	str, err := m.reader.ReadString('\n')
+	if err != nil {
+		return nil
 	}
+
+	return serverMsg(strings.TrimSpace(str))
 }

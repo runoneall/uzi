@@ -7,12 +7,17 @@ import (
 )
 
 func broadcast(message string) {
-	mu.RLock()
+	mu.Lock()
+	History = append(History, message)
+	if len(History) > MaxHistory {
+		History = History[1:]
+	}
+
 	conns := make([]net.Conn, 0, len(Pool))
 	for conn := range Pool {
 		conns = append(conns, conn)
 	}
-	mu.RUnlock()
+	mu.Unlock()
 
 	for _, conn := range conns {
 		go func(conn net.Conn) {

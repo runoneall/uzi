@@ -13,7 +13,7 @@ func Connect(addr string, auth string) {
 	}
 	defer conn.Close()
 
-	p := tea.NewProgram(NewModel(conn, auth))
+	p := tea.NewProgram(newModel(conn, auth))
 	if _, err := p.Run(); err != nil {
 		panic(err)
 	}

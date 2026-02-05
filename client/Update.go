@@ -1,50 +1,10 @@
 package client
 
 import (
-	"bufio"
-	"fmt"
-	"net"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/textinput"
-	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 )
-
-type serverMsg string
-
-type model struct {
-	conn     net.Conn
-	auth     string
-	viewport viewport.Model
-	input    textinput.Model
-	messages []string
-}
-
-func NewModel(conn net.Conn, auth string) model {
-	ti := textinput.New()
-	ti.Focus()
-
-	return model{
-		conn:     conn,
-		auth:     auth,
-		input:    ti,
-		viewport: viewport.New(0, 0),
-	}
-}
-
-func (m model) recvCmd() tea.Msg {
-	str, err := bufio.NewReader(m.conn).ReadString('\n')
-	if err != nil {
-		return nil
-	}
-
-	return serverMsg(strings.TrimSpace(str))
-}
-
-func (m model) Init() tea.Cmd {
-	return tea.Batch(textinput.Blink, m.recvCmd)
-}
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var (
@@ -84,7 +44,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.viewport.SetContent(strings.Join(m.messages, "\n"))
 		m.viewport.GotoBottom()
 
-		return m, m.recvCmd
+		return m, m.recv
 
 	}
 
@@ -95,8 +55,4 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
-}
-
-func (m model) View() string {
-	return fmt.Sprintf("--- 聊天室 ---\n%s\n\n%s", m.viewport.View(), m.input.View())
 }
