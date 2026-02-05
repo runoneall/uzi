@@ -18,8 +18,11 @@ func newConn(conn net.Conn, auth string) {
 	Pool[conn] = struct{}{}
 	mu.Unlock()
 
+	remoteAddr, _ := net.ResolveTCPAddr("tcp", conn.RemoteAddr().String())
+	remoteName := remoteAddr.IP.String()
+
 	log := func(mode string, msg any) {
-		fmt.Printf("[%s] %s: %v\n", conn.RemoteAddr(), mode, msg)
+		fmt.Printf("[%s] %s: %v\n", remoteName, mode, msg)
 	}
 
 	limitedReader := io.LimitReader(conn, 1024*1024)
@@ -41,6 +44,6 @@ func newConn(conn net.Conn, auth string) {
 
 		message := strings.TrimSpace(payload.Message)
 		log("BROAD", message)
-		broadcast(fmt.Sprintf("[%s] %s", conn.RemoteAddr(), message))
+		broadcast(fmt.Sprintf("[%s] %s", remoteName, message))
 	}
 }
