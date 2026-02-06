@@ -85,7 +85,7 @@ uzi 提供了一些扩展包，对实时通讯的一些功能进行了封装，�
 
    protocol 使用的数据结构为
 
-   ```plaintext
+   ```go
    type Payload struct {
       MsgType string
       MsgData []byte
