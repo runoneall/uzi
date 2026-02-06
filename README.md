@@ -1,6 +1,6 @@
 # uzi
 
-为提供内网 ip 的 vps 编写的终端通讯系统
+纯 Golang 实现的终端通讯系统
 
 ## 使用方法
 
@@ -8,7 +8,7 @@
 
 ```plaintext
 $ uzi --help
-为提供内网 ip 的 vps 编写的终端通讯系统
+纯 Golang 实现的终端通讯系统
 
 Usage:
   uzi [flags]
