@@ -78,3 +78,26 @@ uzi 提供了一些扩展包，对实时通讯的一些功能进行了封装，�
 | ---- | ---------- | ---------- |
 | Add  | O(1)       | O(1)       |
 | Get  | O(n)       | O(n)       |
+
+### uzi/protocol 详细使用文档
+
+1. 数据结构
+
+   protocol 使用的数据结构为
+
+   ```plaintext
+   type Payload struct {
+      MsgType string
+      MsgData []byte
+   }
+   ```
+
+   写入和读取数据都通过 `Payload` 进行
+
+2. 从连接中读取数据
+
+   调用 `protocol.Read(<io.Reader>)` 读取一个 `Payload`，该方法可以传入任何实现了 `io.Reader` 的对象，该方法返回两个值 `(Payload, error)`，`Payload` 代表解码的数据，`error` 代表是否发生错误
+
+3. 写入数据到连接
+
+   调用 `protocol.Write(<io.Writer>, <Payload>)` 写入一个 `Payload`，该方法的第一个参数为任何实现了 `io.Writer` 的对象，第二个参数为实例化的 `Payload` 对象，该方法返回 `error` 代表是否发生错误
