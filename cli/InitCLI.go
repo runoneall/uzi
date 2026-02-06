@@ -6,7 +6,7 @@ func InitCLI(use string) {
 	once.Do(func() {
 		Root = &cobra.Command{
 			Use:   use,
-			Short: "为提供内网 ip 的 vps 编写的终端聊天系统",
+			Short: "为提供内网 ip 的 vps 编写的终端通讯系统",
 			Run: func(cmd *cobra.Command, args []string) {
 				Root.Help()
 			},

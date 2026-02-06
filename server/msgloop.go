@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"io"
 	"log/slog"
 	"net"
@@ -10,6 +11,9 @@ import (
 )
 
 func msgloop(conn net.Conn) {
+	msgSender, _ := net.ResolveTCPAddr("tcp", conn.RemoteAddr().String())
+	msgSenderIP := msgSender.IP.String()
+
 	for {
 		msgPayload, err := protocol.Read(conn)
 		if err != nil {
@@ -32,9 +36,16 @@ func msgloop(conn net.Conn) {
 			continue
 		}
 
-		history.Mgr.Add(string(msgPayload.MsgData))
+		msgString := fmt.Sprintf("[%s] %s", msgSenderIP, string(msgPayload.MsgData))
+		history.Mgr.Add(msgString)
+
+		slog.Info("broadcast", "message", msgString)
 		uziconn.Mgr.Broadcast(func(conn net.Conn) bool {
-			_, err := conn.Write(msgPayload.MsgData)
+			err := protocol.Write(conn, protocol.Payload{
+				MsgType: "message",
+				MsgData: []byte(msgString),
+			})
+
 			return err == nil
 		})
 	}

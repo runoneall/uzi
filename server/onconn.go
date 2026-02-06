@@ -16,6 +16,8 @@ func onconn(conn net.Conn) {
 		return
 	}
 
+	slog.Info("new client joined", "addr", conn.RemoteAddr())
+
 	for _, historyMsg := range history.Mgr.Get() {
 		protocol.Write(conn, protocol.Payload{
 			MsgType: "message",
